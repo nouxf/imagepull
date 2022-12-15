@@ -28,7 +28,7 @@ jobs:
                   continue;
                 fi
                 echo "1.Pull image: ${image} Start..."
-                docker pull $image
+                docker pull $image >/dev/null || continue
                 reimage=`echo ${image##*/} | awk -F@ '{print $1}'`
                 echo "2.Retag image..."
                 docker tag ${image} ${REG_URL}/${REPO_NAME}/${reimage} || continue
