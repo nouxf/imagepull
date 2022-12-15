@@ -1,0 +1,36 @@
+name: Build Amd64 Image
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+      runs-on: ubuntu-latest
+      name: Build image job
+      steps:
+          - name: Checkout master
+            uses: actions/checkout@master
+          - name: ACR login
+            env:
+              REG_PWD: ${{ secrets.REG_PWD }}
+              REG_USER: ${{ secrets.REG_USER }}
+              REG_URL: ${{ secrets.REG_URL }}
+              REPO_NAME: ${{ secrets.REG_REPO }}
+            run: |
+              echo "${REG_PWD}" | docker login --username ${REG_USER} --password-stdin  ${REG_URL}
+          - name: build dockerfile with push
+            env:
+              DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+            run: |
+              for image in $(<image.list);do 
+                if [[ $image =~ ^\#.* ]];then   
+                  continue;
+                fi
+                echo "1.Pull image: ${image} Start..."
+                docker pull $image
+                reimage=`echo ${image##*/} | awk -F@ '{print $1}'`
+                echo "2.Retag image..."
+                docker tag $image ${REG_URL}/${REPO_NAME}/${reimage} || continue
+                echo "3.Push image..."
+                docker push ${REG_URL}/${REPO_NAME}/${reimage} || continue
+              done
