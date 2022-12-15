@@ -20,7 +20,8 @@ jobs:
               echo "${REG_PWD}" | docker login --username ${REG_USER} --password-stdin  ${REG_URL}
           - name: build dockerfile with push
             env:
-              DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+              REG_URL: ${{ secrets.REG_URL }}
+              REPO_NAME: ${{ secrets.REG_REPO }}
             run: |
               for image in $(<image.list);do 
                 if [[ $image =~ ^\#.* ]];then   
@@ -30,7 +31,7 @@ jobs:
                 docker pull $image
                 reimage=`echo ${image##*/} | awk -F@ '{print $1}'`
                 echo "2.Retag image..."
-                docker tag $image ${REG_URL}/${REPO_NAME}/${reimage} || continue
+                docker tag ${image} ${REG_URL}/${REPO_NAME}/${reimage} || continue
                 echo "3.Push image..."
                 docker push ${REG_URL}/${REPO_NAME}/${reimage} || continue
               done
