@@ -1,6 +1,6 @@
 # imagepull
 Download Image
-* 通过github action 将国外镜同步到国内的公有云仓库
+* 通过github action 将国外镜像同步到国内的公有云仓库
 
 **效果示例**
 
